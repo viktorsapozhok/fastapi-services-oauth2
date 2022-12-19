@@ -1,0 +1,19 @@
+database:
+  prod:
+    host: PSQL_PROD_HOST
+    port: PSQL_PROD_PORT
+    user: PSQL_PROD_USER
+    password: PSQL_PROD_PASSWORD
+    dbname: PSQL_PROD_DBNAME
+  stage:
+    host: PSQL_STAGE_HOST
+    port: PSQL_STAGE_PORT
+    user: PSQL_STAGE_USER
+    password: PSQL_STAGE_PASSWORD
+    dbname: PSQL_STAGE_DBNAME
+  dev:
+    host: PSQL_DEV_HOST
+    port: PSQL_DEV_PORT
+    user: PSQL_DEV_USER
+    password: PSQL_DEV_PASSWORD
+    dbname: PSQL_DEV_DBNAME
