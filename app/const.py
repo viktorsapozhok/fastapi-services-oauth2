@@ -5,21 +5,16 @@ from typing import List
 # Application name
 APP_NAME: Final = "app"
 
-# Database environments
-ENV_DEV: Final = "dev"
-ENV_STAGE: Final = "stage"
-ENV_PROD: Final = "prod"
+# Environment variables prefix
+ENV_PREFIX: Final = "api_"
 
 # Turn on/off authentication
-AUTH_ON = "on"
-AUTH_OFF = "off"
-
-# Config file name
-CONF_FILE = "config.yml"
+AUTH_ON: Final = "on"
+AUTH_OFF: Final = "off"
 
 # User schema in case of no authentication
-DEFAULT_USER_ID = -1
-DEFAULT_USER_EMAIL = "email"
+DEFAULT_USER_ID: Final = -1
+DEFAULT_USER_EMAIL: Final = "email"
 
 # Open API parameters
 OPEN_API_TITLE: Final = "API Hub"
@@ -43,9 +38,6 @@ AUTH_URL: Final = "token"  # authentication
 
 TOKEN_TYPE: Final = "bearer"
 TOKEN_EXPIRE_MINUTES: Final = 60
-
-# Random secret key used to sign the JWT tokens
-TOKEN_SECRET_KEY: Final = "api-token-key"
 
 # Algorithm used to sign the JWT tokens
 TOKEN_ALGORITHM: Final = "HS256"
