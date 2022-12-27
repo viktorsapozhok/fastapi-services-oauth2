@@ -18,19 +18,10 @@ DEFAULT_USER_EMAIL: Final = "email"
 
 # Open API parameters
 OPEN_API_TITLE: Final = "API Hub"
-OPEN_API_DESCRIPTION: Final = """
-Demo API built with FastAPI and SQLAlchemy over Postgres database.
-"""
+OPEN_API_DESCRIPTION: Final = "Demo API built with FastAPI over Postgres database."
 
 # Database schema name
-DATABASE_SCHEMA: Final = "api"
-
-# Healthcheck service constants
-HEALTH_TAGS: Final[List[str | Enum] | None] = ["Healthcheck"]
-HEALTH_URL: Final = "health"
-HEALTH_STATUS_URL: Final = "status"
-HEALTH_STATUS_ALIVE: Final = "alive"
-HEALTH_STATUS_IDLE: Final = "idle"
+DATABASE_SCHEMA: Final = "dbt_mmapi"
 
 # Authentication service constants
 AUTH_TAGS: Final[List[str | Enum] | None] = ["Authentication"]
@@ -41,3 +32,10 @@ TOKEN_EXPIRE_MINUTES: Final = 60
 
 # Algorithm used to sign the JWT tokens
 TOKEN_ALGORITHM: Final = "HS256"
+
+# Foo service constants
+FOO_TAGS: Final[List[str | Enum] | None] = ["Foo"]
+FOO_URL: Final = "foo"  # Foo service
+FOO_URL_ITEM: Final = "item"
+FOO_URL_ITEMS: Final = "items"
+FOO_URL_PUBLIC_ITEMS: Final = "public_items"

@@ -11,9 +11,7 @@ from app.const import DATABASE_SCHEMA
 
 # create session factory to generate new database sessions
 SessionFactory = sessionmaker(
-    bind=create_engine(settings.dsn),
-    autocommit=False,
-    autoflush=False
+    bind=create_engine(settings.dsn), autocommit=False, autoflush=False
 )
 
 # declarative base class used to construct mappings
