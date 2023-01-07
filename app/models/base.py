@@ -9,6 +9,8 @@ from app.backend.database import Base
 
 @declarative_mixin
 class TableValuedMixin:
+    """Mixin class used to construct mappings for table valued functions."""
+
     @classmethod
     def table_valued(cls, *args: Any) -> TableValuedAlias:
         selectable = inspect(cls).selectable

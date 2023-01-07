@@ -17,7 +17,18 @@ class AppService(DBSessionMixin):
 
 
 class AppCRUD(DBSessionMixin):
+    """Base class for basic operations over database objects."""
+
     def query(self, model: Type[BaseModel], *args: Any, **filter_kwargs: Any) -> Query:
+        """Helper function used to construct SELECT statements.
+
+        Positional arguments are used to construct queries from table functions
+        and represent function input parameters passed in the same order.
+
+        Keyword arguments are used to construct WHERE clause when querying
+        from tables and views.
+        """
+
         if model.is_table_valued():
             query = self.db.execute(select(model.table_valued(*args)))
         else:

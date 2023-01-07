@@ -32,6 +32,10 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl=AUTH_URL, auto_error=False)
 async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | None:
     """Decode token to obtain user information.
 
+    It extracts user information from token and verifies expiration time.
+    If token is valid it returns instance of ``UserSchema``, otherwise it raises
+    the corresponding exception.
+
     Args:
         token:
             The token to verify.
@@ -44,8 +48,10 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
         raise_with_log(status.HTTP_401_UNAUTHORIZED, "Invalid token")
 
     try:
+        # decode token using secret token key provided by settings class
         payload = jwt.decode(token, settings.token_key, algorithms=[TOKEN_ALGORITHM])
 
+        # extract encoded information
         name: int = payload.get("name")
         sub: str = payload.get("sub")
         expires_at: str = payload.get("expires_at")
@@ -64,16 +70,29 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
 
 
 def is_expired(expires_at: str) -> bool:
+    """Return ``True`` if token has expired."""
+
     return datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S") < datetime.utcnow()
 
 
 class AuthService(AppService):
+    """Authentication service."""
+
     def create_user(self, user: CreateUserSchema) -> None:
+        """Add user with hashed password to database."""
+
         AuthCRUD(self.db).add_user(user)
 
     def authenticate(
         self, login: OAuth2PasswordRequestForm = Depends()
     ) -> TokenSchema | None:
+        """Generate token.
+
+        It obtains username and password and verifies with hashed password stored
+        in database. If password is valid temporary token is generated, otherwise
+        the corresponding exception is raised.
+        """
+
         user = AuthCRUD(self.db).get_user(login.username)
 
         if not user:
@@ -92,6 +111,8 @@ class AuthService(AppService):
         return None
 
     def _create_access_token(self, name: str, email: str) -> str:
+        """Encode user information and expiration time."""
+
         payload = {
             "name": name,
             "sub": email,
@@ -102,12 +123,16 @@ class AuthService(AppService):
 
     @staticmethod
     def _expiration_time() -> str:
+        """Generate token expiration time."""
+
         expires_at = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
         return expires_at.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class AuthCRUD(AppCRUD):
     def add_user(self, user: CreateUserSchema) -> None:
+        """Hash user password and write it to database."""
+
         user = UserModel(
             name=user.name,
             email=user.email,
@@ -119,6 +144,8 @@ class AuthCRUD(AppCRUD):
         self.db.refresh(user)
 
     def get_user(self, email: str) -> UserSchema:
+        """Read user from database."""
+
         return UserSchema.from_orm(self.query(UserModel, email=email).first())
 
 
