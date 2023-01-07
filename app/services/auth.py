@@ -88,9 +88,9 @@ class AuthService(AppService):
     ) -> TokenSchema | None:
         """Generate token.
 
-        It obtains username and password and verifies with hashed password stored
-        in database. If password is valid temporary token is generated, otherwise
-        the corresponding exception is raised.
+        It obtains username and password and verifies password vs
+        hashed password stored in database. If it's valid temporary
+        token is generated, otherwise the corresponding exception is raised.
         """
 
         user = AuthCRUD(self.db).get_user(login.username)

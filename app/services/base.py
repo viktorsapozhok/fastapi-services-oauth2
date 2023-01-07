@@ -17,7 +17,7 @@ class AppService(DBSessionMixin):
 
 
 class AppCRUD(DBSessionMixin):
-    """Base class for basic operations over database objects."""
+    """Base class for CRUD operations over database objects."""
 
     def query(self, model: Type[BaseModel], *args: Any, **filter_kwargs: Any) -> Query:
         """Helper function used to construct SELECT statements.
