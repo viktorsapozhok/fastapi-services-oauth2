@@ -22,14 +22,17 @@ def main(version: bool) -> None:
 def create_user(name: str, email: str, password: str) -> None:
     """Create new user.
 
+    Write new user (with hashed password) to corresponding database table.
+
     Examples:
         myapi --name 'John Smith' --email john_smith@domain.com --password qwerty123
     """
 
+    # initialize user schema
     user = CreateUserSchema(name=name, email=email, password=password)
 
     # generate new database session
     session = next(create_session())
 
-    # write user data to myapi.users table
+    # write to database
     AuthService(session).create_user(user)
