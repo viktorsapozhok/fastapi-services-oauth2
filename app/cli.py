@@ -1,9 +1,6 @@
-from typing import Any
-
 import click
 
-from app.backend.database import create_factory
-from app.const import ENV_DEV
+from app.backend.database import create_session
 from app.schemas.auth import CreateUserSchema
 from app.services.auth import AuthService
 from app.version import __version__
@@ -19,18 +16,20 @@ def main(version: bool) -> None:
 
 
 @main.command()
-@click.option("--env", default=ENV_DEV, help="Environment")
 @click.option("--name", type=str, help="User name")
 @click.option("--email", type=str, help="Email")
 @click.option("--password", type=str, help="Password")
-def create_user(**kwargs: Any) -> None:
-    """Create new user."""
+def create_user(name: str, email: str, password: str) -> None:
+    """Create new user.
 
-    user = CreateUserSchema(
-        name=kwargs["name"], email=kwargs["email"], password=kwargs["password"]
-    )
+    Examples:
+        myapi --name 'John Smith' --email john_smith@domain.com --password qwerty123
+    """
 
-    session_factory = create_factory(kwargs["env"])
+    user = CreateUserSchema(name=name, email=email, password=password)
 
-    with session_factory() as session:
-        AuthService(session).create_user(user)
+    # generate new database session
+    session = next(create_session())
+
+    # write user data to myapi.users table
+    AuthService(session).create_user(user)

@@ -11,8 +11,6 @@ from passlib.context import CryptContext
 
 from app.backend.config import settings
 from app.const import (
-    DEFAULT_USER_EMAIL,
-    DEFAULT_USER_ID,
     TOKEN_ALGORITHM,
     TOKEN_EXPIRE_MINUTES,
     TOKEN_TYPE,
@@ -41,9 +39,6 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
     Returns:
         Decoded user dictionary.
     """
-
-    if settings.auth_disabled:
-        return UserSchema(user_id=DEFAULT_USER_ID, email=DEFAULT_USER_EMAIL)
 
     if not token:
         raise_with_log(status.HTTP_401_UNAUTHORIZED, "Invalid token")

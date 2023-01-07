@@ -32,7 +32,7 @@ setup(
     install_requires=get_requirements(),
     entry_points={
         "console_scripts": [
-            "mmapi=app.cli:main",
+            "myapi=app.cli:main",
         ]
     },
     python_requires=">=3.10"

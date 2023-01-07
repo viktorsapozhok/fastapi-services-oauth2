@@ -1,20 +1,30 @@
 from pydantic import BaseSettings
 from pydantic import PostgresDsn
 
-from app.const import AUTH_OFF, AUTH_ON
+from app.const import ENV_PREFIX
 
 
 class Settings(BaseSettings):
+    """API configuration parameters.
+
+    Automatically read modifications to the configuration parameters
+    from environment variables.
+
+    Each environment variable should have prefix specified by ``ÈNV_PREFIX``
+    constant.
+
+    Attributes:
+        dsn:
+            Postgres connection string.
+        token_key:
+            Random secret key used to sign JWT tokens.
+    """
+
     dsn: PostgresDsn
     token_key: str
-    auth: str = AUTH_ON
 
     class Config:
-        env_prefix = "api_"
-
-    @property
-    def auth_disabled(self) -> bool:
-        return self.auth == AUTH_OFF
+        env_prefix = ENV_PREFIX
 
 
 settings = Settings()

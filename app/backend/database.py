@@ -3,6 +3,7 @@ from typing import Iterator
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
 from app.backend.config import settings
@@ -18,7 +19,7 @@ SessionFactory = sessionmaker(
 Base = declarative_base(metadata=MetaData(schema=DATABASE_SCHEMA))
 
 
-def create_session() -> Iterator[sessionmaker]:
+def create_session() -> Iterator[Session]:
     """Create new database session.
 
     Yields:
