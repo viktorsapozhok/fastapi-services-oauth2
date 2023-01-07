@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Final
 from typing import List
 
-# Environment variables prefix
+# Prefix of environment variables specifying config parameters
 ENV_PREFIX: Final = "api_"
 
 # Open API parameters
