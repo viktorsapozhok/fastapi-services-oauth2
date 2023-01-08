@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     Automatically read modifications to the configuration parameters
     from environment variables.
 
-    Each environment variable should have prefix specified by ``ÈNV_PREFIX``
-    constant.
+    Each environment variable should have prefix given by ``ÈNV_PREFIX``
+    constant. Constants are specified via :mod:`~app.const`.
 
     Attributes:
         dsn:

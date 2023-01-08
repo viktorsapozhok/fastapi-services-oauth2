@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.const import OPEN_API_DESCRIPTION, OPEN_API_TITLE
-from app.routers import auth, foo
+from app.routers import auth, movies
 from app.version import __version__
 
 app = FastAPI(
@@ -12,4 +12,4 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
-app.include_router(foo.router)
+app.include_router(movies.router)

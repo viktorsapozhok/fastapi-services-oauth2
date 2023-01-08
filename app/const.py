@@ -22,9 +22,8 @@ TOKEN_EXPIRE_MINUTES: Final = 60
 # Algorithm used to sign the JWT tokens
 TOKEN_ALGORITHM: Final = "HS256"
 
-# Foo service constants
-FOO_TAGS: Final[List[str | Enum] | None] = ["Foo"]
-FOO_URL: Final = "foo"
-FOO_URL_ITEM: Final = "item"
-FOO_URL_ITEMS: Final = "items"
-FOO_URL_PUBLIC_ITEMS: Final = "public_items"
+# Movies service constants
+MOVIES_TAGS: Final[List[str | Enum] | None] = ["Movies"]
+MOVIES_URL: Final = "movies"
+MOVIES_URL_NEW: Final = "new"
+MOVIES_URL_GENRE: Final = "genre"

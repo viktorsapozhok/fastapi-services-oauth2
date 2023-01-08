@@ -33,8 +33,8 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
     """Decode token to obtain user information.
 
     It extracts user information from token and verifies expiration time.
-    If token is valid it returns instance of ``UserSchema``, otherwise it raises
-    the corresponding exception.
+    If token is valid instance :class:`~app.schemas.auth.UserSchema` is returned,
+    otherwise the corresponding exception is raised.
 
     Args:
         token:
@@ -70,7 +70,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
 
 
 def is_expired(expires_at: str) -> bool:
-    """Return ``True`` if token has expired."""
+    """Return :obj:`True` if token has expired."""
 
     return datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S") < datetime.utcnow()
 
@@ -89,7 +89,7 @@ class AuthService(AppService):
         """Generate token.
 
         It obtains username and password and verifies password vs
-        hashed password stored in database. If it's valid temporary
+        hashed password stored in database. If valid then temporary
         token is generated, otherwise the corresponding exception is raised.
         """
 
