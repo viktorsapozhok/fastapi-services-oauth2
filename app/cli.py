@@ -24,6 +24,7 @@ def create_user(name: str, email: str, password: str) -> None:
 
     Write new user (with hashed password) to corresponding database table.
 
+    \b
     Examples:
         myapi --name 'John Smith' --email john_smith@domain.com --password qwerty123
     """
