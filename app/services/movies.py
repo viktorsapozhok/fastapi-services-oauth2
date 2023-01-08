@@ -1,8 +1,10 @@
 from typing import List
 
-from app.models.movies import GenreMovieModel, MovieModel
+from app.models.movies import GenreMovieModel
+from app.models.movies import MovieModel
 from app.schemas.movies import MovieSchema
-from app.services.base import AppCRUD, AppService
+from app.services.base import AppCRUD
+from app.services.base import AppService
 
 
 class MovieService(AppService):

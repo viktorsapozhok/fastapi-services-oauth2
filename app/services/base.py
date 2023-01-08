@@ -2,7 +2,8 @@ from typing import Any
 from typing import Type
 
 from sqlalchemy import select
-from sqlalchemy.orm import Query, Session
+from sqlalchemy.orm import Query
+from sqlalchemy.orm import Session
 
 from app.models.base import BaseModel
 

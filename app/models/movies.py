@@ -5,7 +5,8 @@ from sqlalchemy import (
     String,
 )
 
-from app.models.base import BaseModel, TableValuedMixin
+from app.models.base import BaseModel
+from app.models.base import TableValuedMixin
 
 
 class MovieModel(BaseModel):
