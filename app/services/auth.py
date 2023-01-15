@@ -48,7 +48,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
         raise_with_log(status.HTTP_401_UNAUTHORIZED, "Invalid token")
 
     try:
-        # decode token using secret token key provided by settings class
+        # decode token using secret token key provided by config
         payload = jwt.decode(token, config.token_key, algorithms=[TOKEN_ALGORITHM])
 
         # extract encoded information
@@ -119,7 +119,7 @@ class AuthService(AppService):
             "expires_at": self._expiration_time(),
         }
 
-        return jwt.encode(payload, settings.token_key, algorithm=TOKEN_ALGORITHM)
+        return jwt.encode(payload, config.token_key, algorithm=TOKEN_ALGORITHM)
 
     @staticmethod
     def _expiration_time() -> str:

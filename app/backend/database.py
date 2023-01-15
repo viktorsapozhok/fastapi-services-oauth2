@@ -15,7 +15,7 @@ SessionFactory = sessionmaker(
 )
 
 # declarative base class used to construct mappings
-Base = declarative_base(metadata=MetaData(schema=config.database.schema))
+Base = declarative_base(metadata=MetaData(schema=config.database.target_schema))
 
 
 def create_session() -> Iterator[Session]:
