@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 
-from app.backend.config import settings
+from app.backend.config import config
 from app.const import (
     TOKEN_ALGORITHM,
     TOKEN_EXPIRE_MINUTES,
@@ -49,7 +49,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
 
     try:
         # decode token using secret token key provided by settings class
-        payload = jwt.decode(token, settings.token_key, algorithms=[TOKEN_ALGORITHM])
+        payload = jwt.decode(token, config.token_key, algorithms=[TOKEN_ALGORITHM])
 
         # extract encoded information
         name: int = payload.get("name")

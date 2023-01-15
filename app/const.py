@@ -3,14 +3,15 @@ from typing import Final
 from typing import List
 
 # Prefix of environment variables specifying config parameters
-ENV_PREFIX: Final = "api_"
+ENV_PREFIX: Final = "MYAPI_"
+
+ENV_PROD: str = "prod"
+ENV_STAGE: str = "stage"
+ENV_DEV: str = "dev"
 
 # Open API parameters
 OPEN_API_TITLE: Final = "API Hub"
 OPEN_API_DESCRIPTION: Final = "Demo API over Postgres database built with FastAPI."
-
-# Database schema name
-DATABASE_SCHEMA: Final = "myapi"
 
 # Authentication service constants
 AUTH_TAGS: Final[List[str | Enum] | None] = ["Authentication"]

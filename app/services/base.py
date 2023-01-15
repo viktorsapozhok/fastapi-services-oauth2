@@ -21,7 +21,7 @@ class AppCRUD(DBSessionMixin):
     """Base class for CRUD operations over database objects."""
 
     def query(
-        self, model: Type[BaseModel], *filter_args: Any, **filter_kwargs
+        self, model: Type[BaseModel], *filter_args: Any, **filter_kwargs: Any
     ) -> Query:
         """Helper function used to construct basic SELECT statements.
 
@@ -34,17 +34,25 @@ class AppCRUD(DBSessionMixin):
 
         Examples:
 
-            Construct SELECT query from Postgres function.
+            Construct SELECT from function:
+                SELECT x, y, z FROM foo(1, 2, 'AAA')
 
             .. code::
 
                 self.query(model, 1, 2, 'AAA')
 
-            Construct SELECT query from table.
+            Construct SELECT from table:
+                SELECT x, y, z FROM foo WHERE x = 1 AND y > 2 AND z like '%AAA%'
 
             .. code::
 
                 self.query(model, model.x == 1, model.y > 2, model.z.contains('AAA'))
+
+            Construct SELECT from table:
+                SELECT x, y, z FROM foo WHERE x = 1 AND y = 2 AND z = 'AAA'
+
+            .. code::
+
                 self.query(model, x == 1, y == 2, z == 'AAA')
 
         Args:

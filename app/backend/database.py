@@ -6,17 +6,16 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
-from app.backend.config import settings
-from app.const import DATABASE_SCHEMA
+from app.backend.config import config
 
 
 # create session factory to generate new database sessions
 SessionFactory = sessionmaker(
-    bind=create_engine(settings.dsn), autocommit=False, autoflush=False
+    bind=create_engine(config.dsn), autocommit=False, autoflush=False
 )
 
 # declarative base class used to construct mappings
-Base = declarative_base(metadata=MetaData(schema=DATABASE_SCHEMA))
+Base = declarative_base(metadata=MetaData(schema=config.database.schema))
 
 
 def create_session() -> Iterator[Session]:
