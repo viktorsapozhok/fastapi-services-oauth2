@@ -36,9 +36,12 @@ adding a new module in each of these packages.
 ```
 
 Package `backend` provides database session manager and configs. In case, application 
-communicates not only with database, but also uses other backends (e.g. other API), 
-the clients can be placed in `backend`.
+communicates not only with database, but also with other backends (e.g. other API), 
+the corresponding clients can be placed in `backend`.
 
 Module `cli` provides command-line functionality related to API services but not required
-access through API endpoints. It's focused on the tasks that need to be done manually.
-For instance, create a new user and store its hashed data in database.
+access through API endpoints. It's main focus is to complete tasks that need to be done 
+manually or by scheduler. For instance, create a new user and store its hashed data in database.
+
+Module `main` represents FastAPI entry point and initiates `app` object (instance of `FastAPI` class).
+This `app` is referred by server when running `uvicorn main:app` command.
