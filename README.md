@@ -41,6 +41,4 @@ the clients can be placed in `backend`.
 
 Module `cli` provides command-line functionality related to API services but not required
 access through API endpoints. It's focused on the tasks that need to be done manually.
-For instance, create a new user and store its hashed data in database, in order the
-authentication service could later verify user login requests without accessing unencoded 
-password.
+For instance, create a new user and store its hashed data in database.
