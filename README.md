@@ -61,10 +61,10 @@ rating (e.g. movie imdb rating).
 CREATE SCHEMA IF NOT EXISTS myapi;
 
 CREATE TABLE IF NOT EXISTS myapi.movies (
-	movie_id INTEGER PRIMARY KEY,
-	title TEXT NOT NULL,
-	released INTEGER NOT NULL,
-	rating NUMERIC(2, 1) NOT NULL
+    movie_id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    released INTEGER NOT NULL,
+    rating NUMERIC(2, 1) NOT NULL
 );
 ```
 
