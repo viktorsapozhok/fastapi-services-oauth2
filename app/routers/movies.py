@@ -24,7 +24,7 @@ router = APIRouter(prefix="/" + MOVIES_URL, tags=MOVIES_TAGS)
 @router.get("/", response_model=MovieSchema)
 async def get_movie(
     movie_id: int,
-#    user: UserSchema = Depends(get_current_user),
+    user: UserSchema = Depends(get_current_user),
     session: Session = Depends(create_session),
 ) -> MovieSchema:
     """Get movie by ID."""
@@ -36,7 +36,7 @@ async def get_movie(
 async def get_new_movies(
     year: int,
     rating: float,
-#    user: UserSchema = Depends(get_current_user),
+    user: UserSchema = Depends(get_current_user),
     session: Session = Depends(create_session),
 ) -> List[MovieSchema]:
     """Get movies released since ``year`` and rated higher than ``rating``."""
