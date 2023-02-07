@@ -57,7 +57,7 @@ class AppCRUD(DBSessionMixin):
 
             .. code::
 
-                self.query(model, x == 1, y == 2, z == 'AAA')
+                self.query(model, x=1, y=2, z='AAA')
 
         Args:
             model:
