@@ -1,12 +1,20 @@
-from datetime import datetime
-from datetime import timedelta
+from datetime import (
+    datetime,
+    timedelta,
+)
 
-from jose import jwt
-from jose import JWTError
-from fastapi import Depends
-from fastapi import status
-from fastapi.security import OAuth2PasswordBearer
-from fastapi.security import OAuth2PasswordRequestForm
+from jose import (
+    jwt,
+    JWTError,
+)
+from fastapi import (
+    Depends,
+    status,
+)
+from fastapi.security import (
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm,
+)
 from passlib.context import CryptContext
 
 from app.backend.config import config
@@ -18,11 +26,15 @@ from app.const import (
 )
 from app.exc import raise_with_log
 from app.models.auth import UserModel
-from app.schemas.auth import CreateUserSchema
-from app.schemas.auth import TokenSchema
-from app.schemas.auth import UserSchema
-from app.services.base import AppCRUD
-from app.services.base import AppService
+from app.schemas.auth import (
+    CreateUserSchema,
+    TokenSchema,
+    UserSchema,
+)
+from app.services.base import (
+    AppCRUD,
+    AppService,
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

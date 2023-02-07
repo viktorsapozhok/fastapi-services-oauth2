@@ -1,6 +1,8 @@
 from enum import Enum
-from typing import Final
-from typing import List
+from typing import (
+    Final,
+    List,
+)
 
 # Prefix of environment variables specifying config parameters
 ENV_PREFIX: Final = "MYAPI_"

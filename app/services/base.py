@@ -1,9 +1,13 @@
-from typing import Any
-from typing import Type
+from typing import (
+    Any,
+    Type,
+)
 
 from sqlalchemy import select
-from sqlalchemy.orm import Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import (
+    Query,
+    Session,
+)
 
 from app.models.base import BaseModel
 

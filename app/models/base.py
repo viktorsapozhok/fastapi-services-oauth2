@@ -1,7 +1,9 @@
 from typing import Any
 
-from sqlalchemy import func
-from sqlalchemy import inspect
+from sqlalchemy import (
+    func,
+    inspect,
+)
 from sqlalchemy.orm import declarative_mixin
 from sqlalchemy.sql.selectable import TableValuedAlias
 

@@ -1,5 +1,7 @@
-from sqlalchemy import Column
-from sqlalchemy import String
+from sqlalchemy import (
+    Column,
+    String,
+)
 
 from app.models.base import BaseModel
 

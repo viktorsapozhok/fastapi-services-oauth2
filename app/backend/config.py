@@ -1,8 +1,13 @@
-from pydantic import BaseModel
-from pydantic import BaseSettings
-from pydantic import PostgresDsn
+from pydantic import (
+    BaseModel,
+    BaseSettings,
+    PostgresDsn,
+)
 
-from app.const import ENV_DEV, ENV_PREFIX
+from app.const import (
+    ENV_DEV,
+    ENV_PREFIX,
+)
 
 
 class DatabaseConfig(BaseModel):

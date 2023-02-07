@@ -1,7 +1,9 @@
 from typing import List
 
-from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import (
+    APIRouter,
+    Depends,
+)
 from sqlalchemy.orm import Session
 
 from app.backend.database import create_session
