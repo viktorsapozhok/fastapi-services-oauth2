@@ -55,7 +55,7 @@ postgres backend and sending it back to user.
 
 First, we create a database schema called `myapi` and table `movies` in there. In this table,
 we insert list of records with following fields: movie_id, title, released (release year) and 
-rating (e.g. movie imdb rating).
+rating (e.g. imdb rating).
 
 ```sql
 CREATE SCHEMA IF NOT EXISTS myapi;
@@ -169,8 +169,6 @@ async def get_movie(
     movie_id: int,
     session: Session = Depends(create_session),
 ) -> MovieSchema:
-    """Get movie by ID."""
-
     return MovieService(session).get_movie(movie_id)
 
 
@@ -180,14 +178,74 @@ async def get_new_movies(
     rating: float,
     session: Session = Depends(create_session),
 ) -> List[MovieSchema]:
-    """Get movies released since ``year`` and rated higher than ``rating``."""
-
     return MovieService(session).get_new_movies(year, rating)
 ```
 
 ### Services
 
-As a last step, we create a new file `services/movies.py` where we implement the service
+As a last step, we create a new file `services/movies.py` where we implement service
 related logic, in our case it's simply reading data from corresponding db objects and
-converting it to response schema.
+converting it to the response schema.
 
+Every service is a subclass of `AppService` class which provides database session object.
+
+Data access methods are isolated from service logic as a subclass of `AppCRUD` class 
+which provides helper functions for CRUD operations over db objects.
+
+```python
+from typing import List
+
+from app.models.movies import MovieModel
+from app.schemas.movies import MovieSchema
+from app.services.base import (
+    AppCRUD,
+    AppService,
+)
+
+
+class MovieService(AppService):
+    def get_movie(self, movie_id: int) -> MovieSchema:
+        return MovieCRUD(self.db).get_movie(movie_id)
+
+    def get_new_movies(self, year: int, rating: float) -> List[MovieSchema]:
+        return MovieCRUD(self.db).get_new_movies(year, rating)
+
+
+class MovieCRUD(AppCRUD):
+    def get_movie(self, movie_id: int) -> MovieSchema:
+        return MovieSchema.from_orm(self.query(MovieModel, movie_id=movie_id).first())
+
+    def get_new_movies(self, year: int, rating: float) -> List[MovieSchema]:
+        query = self.query(
+            MovieModel, MovieModel.released >= year, MovieModel.rating >= rating
+        )
+
+        return [MovieSchema.from_orm(obj) for obj in query.all()]
+```
+
+### Config
+
+Configuration settings are provided via `backend/config.py` module and can be read from
+environment variables prefixed with `MYAPI_`. It also supports dotenv parsing from `.env`
+file placed in project root directory. 
+
+If you have multiple backends, e.g. `prod`, `stage` and `dev`, you can set up three 
+connection strings in dotenv file and switch between backends using environment variable
+`MYAPI_ENV` (by default, it refers to `dev` environment).
+
+```bash
+$ cat .env
+MYAPI_DATABASE__PROD="postgresql://user:password@host:port/dbname_prod"
+MYAPI_DATABASE__STAGE="postgresql://user:password@host:port/dbname_stage"
+MYAPI_DATABASE__DEV="postgresql://user:password@host:port/dbname_dev"
+
+$ MYAPI_ENV=stage uvicorn app.main:app
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+```
+
+Or you can initialize everything using environment variables only.
+
+```bash
+$ MYAPI_ENV=stage MYAPI_DATABASE__STAGE="postgresql://" uvicorn app.main:app
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+```
