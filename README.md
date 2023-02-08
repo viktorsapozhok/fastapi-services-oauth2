@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS myapi.movies (
 ### Models
 
 As a next step, we create a new file `models/movies.py` and declare there all 
-SQLAlchemy models used in `movies` service.
+SQLAlchemy models used across `movies` service.
 
 ```python
 from sqlalchemy import (
@@ -95,7 +95,8 @@ class MovieModel(BaseModel):
 
 Note, that when you inherit your model from `BaseModel` (defined in `models/base.py`),
 which in turn is inherited from SQLAlchemy base class, then mapping to the specific database
-schema is done via the `metadata` attribute of the generated declarative base class.
+schema is done via the `metadata` attribute of the generated declarative base class 
+(see `backend/database.py` for details).
 
 If you operate over Postgres table-valued functions, you can use `TableValuedMixin` class 
 as it's shown below. In this case, `__tablename__` refers to the corresponding Postgres 
