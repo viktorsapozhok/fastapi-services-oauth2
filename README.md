@@ -229,8 +229,8 @@ Configuration settings are provided via `backend/config.py` module and can be re
 environment variables prefixed with `MYAPI_`. It also supports dotenv parsing from `.env`
 file placed in project root directory. 
 
-If you have multiple backends, e.g. `prod`, `stage` and `dev`, you can set up three 
-connection strings in dotenv file and switch between backends using environment variable
+If you have multiple backends, e.g. `prod`, `stage` and `dev`, you can set up corresponding 
+DSN strings in dotenv file and switch between backends using environment variable
 `MYAPI_ENV` (by default, it refers to `dev` environment).
 
 ```bash
@@ -246,6 +246,22 @@ INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 Or you can initialize everything using environment variables only.
 
 ```bash
-$ MYAPI_ENV=stage MYAPI_DATABASE__STAGE="postgresql://" uvicorn app.main:app
+$ MYAPI_ENV=dev MYAPI_DATABASE__DEV="postgresql://" uvicorn app.main:app
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
+
+## Authentication
+
+Now let's integrate authentication service using the same design pattern we used for adding
+`movies` service.
+
+For demonstration purposes, we will use OAuth2 Password grant type as a protocol to
+get an access token given `username` and `password`. The Password grant type is one of the
+simplest OAuth grants and involves only one step: the app provides a login form to collect
+user's credentials (username and password) and makes a POST request to the server in order
+to exchange the password for an access token.
+
+Note, that the Password grant is not recommended way as it requires the application collect
+user's password. Check the OAuth 2.0 security best practices to remove the Password grant
+from OAuth.
+
