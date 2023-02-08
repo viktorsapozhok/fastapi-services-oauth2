@@ -51,11 +51,11 @@ This `app` is referred by server when running `uvicorn main:app` command.
 To illustrate the proposed structure, let's create a simple service reading data from
 postgres backend and sending it back to user. 
 
-### Database setup
+### Backend setup
 
 First, we create a database schema called `myapi` and table `movies` in there. In this table,
-we insert list of records with following fields: movie_id, title, released (release year) and 
-rating (e.g. imdb rating).
+we insert list of records with following fields: `movie_id`, `title`, `released` (release year) and 
+`rating` (e.g. imdb rating).
 
 ```sql
 CREATE SCHEMA IF NOT EXISTS myapi;
@@ -252,11 +252,11 @@ INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 
 ## Authentication
 
-Now let's integrate authentication service using the same design pattern we used for adding
-`movies` service.
+Authentication service is integrated to application using the same design pattern 
+we used for adding `movies` service.
 
-For demonstration purposes, we will use OAuth2 Password grant type as a protocol to
-get an access token given `username` and `password`. The Password grant type is one of the
+For demonstration purposes, we use OAuth2 Password grant type as a protocol to get an 
+access token given `username` and `password`. The Password grant type is one of the
 simplest OAuth grants and involves only one step: the app provides a login form to collect
 user's credentials (username and password) and makes a POST request to the server in order
 to exchange the password for an access token.
@@ -265,3 +265,98 @@ Note, that the Password grant is not recommended way as it requires the applicat
 user's password. Check the OAuth 2.0 security best practices to remove the Password grant
 from OAuth.
 
+### Backend setup
+
+First, we create table `users` in the backend database where the application will store
+user information. 
+
+```sql
+CREATE TABLE IF NOT EXISTS myapi.users (
+    user_id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    hashed_password TEXT NOT NULL,
+    UNIQUE(email)
+);
+```
+
+Application does not store user's plain password, it uses hashing algorithm to encode 
+passwords before writing data to database.
+
+We add `auth` module in each of four principal packages (the same as we did for `movies` service).
+`AuthService` class (see `services/auth.py` for details) below implements writing user's
+data to database table.
+
+```python
+from passlib.context import CryptContext
+
+from app.models.auth import UserModel
+from app.schemas.auth import CreateUserSchema
+from app.services.base import (
+    AppCRUD,
+    AppService,
+)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+class AuthService(AppService):
+    def create_user(self, user: CreateUserSchema) -> None:
+        AuthCRUD(self.db).add_user(user)
+        
+
+class AuthCRUD(AppCRUD):
+    def add_user(self, user: CreateUserSchema) -> None:
+        user = UserModel(
+            name=user.name,
+            email=user.email,
+            hashed_password=Hasher.bcrypt(user.password),
+        )
+
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+
+
+class Hasher:
+    @staticmethod
+    def bcrypt(password: str) -> str:
+        return pwd_context.hash(password)
+
+    @staticmethod
+    def verify(hashed_password: str, plain_password: str) -> bool:
+        return pwd_context.verify(plain_password, hashed_password)
+```
+
+The convenience methods for making CRUD operations over users can be added to command 
+line interface via `cli` module. Below is an example on how to create new user via 
+command-line.
+
+```python
+import click
+
+from app.backend.database import create_session
+from app.schemas.auth import CreateUserSchema
+from app.services.auth import AuthService
+
+
+@click.group()
+def main() -> None:
+    pass
+
+
+@main.command()
+@click.option("--name", type=str, help="User name")
+@click.option("--email", type=str, help="Email")
+@click.option("--password", type=str, help="Password")
+def create_user(name: str, email: str, password: str) -> None:
+    user = CreateUserSchema(name=name, email=email, password=password)
+    session = next(create_session())
+    AuthService(session).create_user(user)
+```
+
+Now executing following from command-line you get a new record in `users` table.
+
+```bash
+myapi create-user --name 'John Smith' --email john@domain.com --password qwerty123 
+```
