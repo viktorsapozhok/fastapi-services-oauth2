@@ -1,7 +1,8 @@
 # fastapi-services-oauth2
 
 This repository provides an approach on how to structure FastAPI application with 
-multiple services, simple OAuth2 authentication, and Postgres backend.
+multiple services, simple OAuth2 Password authentication with Bearer and JWT tokens, 
+and Postgres backend.
 
 [Read the tutorial][1] for more details.
 
