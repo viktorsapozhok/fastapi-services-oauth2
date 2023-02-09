@@ -358,10 +358,10 @@ def create_user(name: str, email: str, password: str) -> None:
 Executing `create-user` command from command-line, the new record will be added to `users` table.
 
 ```bash
-myapi create-user --name 'John Smith' --email john@domain.com --password qwerty123 
+myapi --name 'test user' --email test_user@myapi.com --password qwerty123
 ```
 
-### Verification
+### Generating token
 
 Application obtains `username` and `password` sent by user through `OAuth2PasswordRequestForm` 
 form body via authentication endpoint. It extracts user information stored in database 
@@ -394,9 +394,7 @@ from app.services.base import AppService
 
 
 class AuthService(AppService):
-    def authenticate(
-        self, login: OAuth2PasswordRequestForm = Depends()
-    ) -> TokenSchema | None:
+    def authenticate(self, login: OAuth2PasswordRequestForm = Depends()):
         user = AuthCRUD(self.db).get_user(login.username)
 
         if not user:
@@ -423,3 +421,111 @@ class AuthService(AppService):
 
         return jwt.encode(payload, config.token_key, algorithm="HS256")
 ```
+
+### Verification
+
+User obtains JWT token from application and uses it to sign the request. To verify
+token, application extracts user information from decoded token and verifies user 
+validity and expiration time. If user is invalid or token has expired, it sends
+the corresponding error message, otherwise it's processing the request.
+
+Function `get_current_user` is responsible for token verification. 
+
+```python
+from jose import (
+    jwt,
+    JWTError,
+)
+from fastapi import (
+    Depends,
+    status,
+)
+from fastapi.security import OAuth2PasswordBearer
+from app.backend.config import config
+from app.exc import raise_with_log
+from app.schemas.auth import UserSchema
+
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+
+
+async def get_current_user(token: str = Depends(oauth2_schema)):
+    if not token:
+        raise_with_log(status.HTTP_401_UNAUTHORIZED, "Invalid token")
+
+    try:
+        # decode token using secret token key provided by config
+        payload = jwt.decode(token, config.token_key, algorithms="HS256")
+
+        # extract encoded information
+        name: int = payload.get("name")
+        sub: str = payload.get("sub")
+        expires_at: str = payload.get("expires_at")
+
+        if sub is None:
+            raise_with_log(status.HTTP_401_UNAUTHORIZED, "Invalid credentials")
+
+        if is_expired(expires_at):
+            raise_with_log(status.HTTP_401_UNAUTHORIZED, "Token expired")
+
+        return UserSchema(name=name, email=sub)
+    except JWTError:
+        raise_with_log(status.HTTP_401_UNAUTHORIZED, "Invalid credentials")
+
+    return None
+```
+
+Function `get_current_user` should be added as a dependency to every path operation
+function that requires authentication. For example, if we want to add authentication
+to `movies` service, we need to modify service routers in the following way.
+
+```python
+from app.services.auth import get_current_user
+
+
+@router.get("/", response_model=MovieSchema)
+async def get_movie(
+    movie_id: int,
+    user: UserSchema = Depends(get_current_user),
+    session: Session = Depends(create_session),
+) -> MovieSchema:
+    return MovieService(session).get_movie(movie_id)
+```
+
+## Running API
+
+Now building it altogether, let's run the application on localhost and test how it works.
+
+```bash
+$ MYAPI_ENV=dev uvicorn app.main:app
+INFO:     Started server process [673616]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+```
+
+Server is running, and we can send the authentication request.
+
+```bash
+$ curl -X 'POST' 'http://127.0.0.1:8000/token' -d 'username=test_user@myapi.com&password=qwerty123'
+{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVz...","token_type":"bearer"}%  
+```
+
+Authentication succeeded and we received access token.
+
+If we send request with incorrect login data, application will raise an error.
+
+```bash
+$ curl -X 'POST' 'http://127.0.0.1:8000/token' -d 'username=test_user@myapi.com&password=password'
+{"detail":"Incorrect password"}%  
+```
+
+Now, let's generate request to `movies` service and sign it with the obtained token.
+
+```bash
+$ curl -X 'GET' 'http://127.0.0.1:8000/movies/new?year=1990&rating=9' -H 'Authorization: Bearer eyJhbGc...'
+[{"movie_id":1,"title":"The Shawshank Redemption","released":1994,"rating":9.2},{"movie_id":3,"title":"The Dark Knight","released":2008,"rating":9.0}]%  
+```
+
+Alright, it works.
+
+You can find the full code in repository.

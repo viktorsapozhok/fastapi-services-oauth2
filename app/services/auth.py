@@ -151,9 +151,7 @@ class AuthCRUD(AppCRUD):
             hashed_password=Hasher.bcrypt(user.password),
         )
 
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        self.add(user)
 
     def get_user(self, email: str) -> UserSchema:
         """Read user from database."""

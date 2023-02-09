@@ -26,7 +26,7 @@ def create_user(name: str, email: str, password: str) -> None:
 
     \b
     Examples:
-        myapi --name 'John Smith' --email john_smith@domain.com --password qwerty123
+        myapi --name 'test user' --email test_user@myapi.com --password qwerty123
     """
 
     # initialize user schema

@@ -1,6 +1,7 @@
 from typing import (
     Any,
     Type,
+    TypeVar,
 )
 
 from sqlalchemy import select
@@ -10,6 +11,8 @@ from sqlalchemy.orm import (
 )
 
 from app.models.base import BaseModel
+
+BaseModelT = TypeVar("BaseModelT", bound="BaseModel")
 
 
 class DBSessionMixin(object):
@@ -75,3 +78,15 @@ class AppCRUD(DBSessionMixin):
         else:
             query = self.db.query(model).filter(*filter_args).filter_by(**filter_kwargs)
         return query
+
+    def add(self, record: BaseModelT) -> None:
+        """Add model instance to current session and commit changes.
+
+        Args:
+            record:
+                Instance of any subclass of :class:`~app.models.base.BaseModel`
+        """
+
+        self.db.add(record)
+        self.db.commit()
+        self.db.refresh(record)
