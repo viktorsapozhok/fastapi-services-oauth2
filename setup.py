@@ -1,7 +1,7 @@
 import os
 from setuptools import setup
 
-VERSION = "1.0.0"
+VERSION = "0.0.0"
 APP_NAME = "app"
 
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))

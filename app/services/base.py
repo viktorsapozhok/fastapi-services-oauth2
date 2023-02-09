@@ -84,7 +84,7 @@ class AppCRUD(DBSessionMixin):
 
         Args:
             record:
-                Instance of any subclass of :class:`~app.models.base.BaseModel`
+                Instance of any subclass of :class:`~app.models.base.BaseModel` class.
         """
 
         self.db.add(record)
