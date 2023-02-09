@@ -268,8 +268,7 @@ from OAuth.
 
 ### Backend setup
 
-First, we create table `users` in the backend database where the application will store
-user information. 
+Let's create table `users` in the backend database to store user information. 
 
 ```sql
 CREATE TABLE IF NOT EXISTS myapi.users (
@@ -285,8 +284,8 @@ Application does not store user's plain password, it uses hashing algorithm to e
 passwords before writing data to database.
 
 We add `auth` module in each of four principal packages (the same as we did for `movies` service).
-`AuthService` class (see `services/auth.py` for details) below implements writing user's
-data to database table.
+`AuthService` class (see `services/auth.py` for details) below implements password hashing
+and adding user data to database table.
 
 ```python
 from passlib.context import CryptContext
@@ -330,7 +329,7 @@ class Hasher:
 ```
 
 The convenience methods for making CRUD operations over users can be added to command 
-line interface via `cli` module. Below is an example on how to create new user via 
+line interface via `cli` module. Below is an example on how to create new user from 
 command-line.
 
 ```python
@@ -356,8 +355,71 @@ def create_user(name: str, email: str, password: str) -> None:
     AuthService(session).create_user(user)
 ```
 
-Now executing following from command-line you get a new record in `users` table.
+Executing `create-user` command from command-line, the new record will be added to `users` table.
 
 ```bash
 myapi create-user --name 'John Smith' --email john@domain.com --password qwerty123 
+```
+
+### Verification
+
+Application obtains `username` and `password` sent by user through `OAuth2PasswordRequestForm` 
+form body via authentication endpoint. It extracts user information stored in database 
+and verifies hashed password with the plain password obtained from request.
+
+If verification succeeds, application generates temporary token and sends it back via 
+response model to the user.
+
+To generate and verify JWT tokens, application uses `python-jose` library with recommended 
+cryptographic backend `pyca/cryptography`. To handle this process, we create random secret 
+key and pass it to `config` via environment variable `MYAPI_TOKEN_KEY` (can be set also 
+in dotenv file).
+
+Example of token generation can be seen below. Method `authenticate` of `AuthService`
+class is triggered every time user sends request to authentication endpoint (see 
+`routers/auth.py` for details).
+
+```python
+from jose import jwt
+from fastapi import (
+    Depends,
+    status,
+)
+from fastapi.security import OAuth2PasswordRequestForm
+
+from app.backend.config import config
+from app.exc import raise_with_log
+from app.schemas.auth import TokenSchema
+from app.services.base import AppService
+
+
+class AuthService(AppService):
+    def authenticate(
+        self, login: OAuth2PasswordRequestForm = Depends()
+    ) -> TokenSchema | None:
+        user = AuthCRUD(self.db).get_user(login.username)
+
+        if not user:
+            raise_with_log(status.HTTP_404_NOT_FOUND, "User not found")
+        else:
+            if not user.hashed_password:
+                raise_with_log(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
+
+            if not Hasher.verify(user.hashed_password, login.password):
+                raise_with_log(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
+
+            access_token = self._create_access_token(user.name, user.email)
+
+            return TokenSchema(access_token=access_token, token_type="bearer")
+
+        return None
+    
+    def _create_access_token(self, name: str, email: str) -> str:
+        payload = {
+            "name": name,
+            "sub": email,
+            "expires_at": self._expiration_time(),
+        }
+
+        return jwt.encode(payload, config.token_key, algorithm="HS256")
 ```
