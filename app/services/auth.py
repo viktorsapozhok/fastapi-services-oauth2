@@ -3,10 +3,6 @@ from datetime import (
     timedelta,
 )
 
-from jose import (
-    jwt,
-    JWTError,
-)
 from fastapi import (
     Depends,
     status,
@@ -15,14 +11,19 @@ from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm,
 )
+from jose import (
+    jwt,
+    JWTError,
+)
 from passlib.context import CryptContext
+from sqlalchemy import select
 
 from app.backend.config import config
 from app.const import (
+    AUTH_URL,
     TOKEN_ALGORITHM,
     TOKEN_EXPIRE_MINUTES,
     TOKEN_TYPE,
-    AUTH_URL,
 )
 from app.exc import raise_with_log
 from app.models.auth import UserModel
@@ -35,6 +36,7 @@ from app.services.base import (
     AppCRUD,
     AppService,
 )
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -56,7 +58,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
         Decoded user dictionary.
     """
 
-    if not token:
+    if token is None:
         raise_with_log(status.HTTP_401_UNAUTHORIZED, "Invalid token")
 
     try:
@@ -64,7 +66,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | 
         payload = jwt.decode(token, config.token_key, algorithms=[TOKEN_ALGORITHM])
 
         # extract encoded information
-        name: int = payload.get("name")
+        name: str = payload.get("name")
         sub: str = payload.get("sub")
         expires_at: str = payload.get("expires_at")
 
@@ -87,79 +89,7 @@ def is_expired(expires_at: str) -> bool:
     return datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S") < datetime.utcnow()
 
 
-class AuthService(AppService):
-    """Authentication service."""
-
-    def create_user(self, user: CreateUserSchema) -> None:
-        """Add user with hashed password to database."""
-
-        AuthCRUD(self.db).add_user(user)
-
-    def authenticate(
-        self, login: OAuth2PasswordRequestForm = Depends()
-    ) -> TokenSchema | None:
-        """Generate token.
-
-        It obtains username and password and verifies password vs
-        hashed password stored in database. If valid then temporary
-        token is generated, otherwise the corresponding exception is raised.
-        """
-
-        user = AuthCRUD(self.db).get_user(login.username)
-
-        if not user:
-            raise_with_log(status.HTTP_404_NOT_FOUND, "User not found")
-        else:
-            if not user.hashed_password:
-                raise_with_log(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
-
-            if not Hasher.verify(user.hashed_password, login.password):
-                raise_with_log(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
-
-            access_token = self._create_access_token(user.name, user.email)
-
-            return TokenSchema(access_token=access_token, token_type=TOKEN_TYPE)
-
-        return None
-
-    def _create_access_token(self, name: str, email: str) -> str:
-        """Encode user information and expiration time."""
-
-        payload = {
-            "name": name,
-            "sub": email,
-            "expires_at": self._expiration_time(),
-        }
-
-        return jwt.encode(payload, config.token_key, algorithm=TOKEN_ALGORITHM)
-
-    @staticmethod
-    def _expiration_time() -> str:
-        """Generate token expiration time."""
-
-        expires_at = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
-        return expires_at.strftime("%Y-%m-%d %H:%M:%S")
-
-
-class AuthCRUD(AppCRUD):
-    def add_user(self, user: CreateUserSchema) -> None:
-        """Hash user password and write it to database."""
-
-        user = UserModel(
-            name=user.name,
-            email=user.email,
-            hashed_password=Hasher.bcrypt(user.password),
-        )
-
-        self.add(user)
-
-    def get_user(self, email: str) -> UserSchema:
-        """Read user from database."""
-
-        return UserSchema.from_orm(self.query(UserModel, email=email).first())
-
-
-class Hasher:
+class HashingMixin:
     """Hashing and verifying passwords."""
 
     @staticmethod
@@ -191,3 +121,77 @@ class Hasher:
         """
 
         return pwd_context.verify(plain_password, hashed_password)
+
+
+class AuthService(HashingMixin, AppService):
+    """Authentication service."""
+
+    def create_user(self, user: CreateUserSchema) -> None:
+        """Add user with hashed password to database."""
+
+        user_model = UserModel(
+            name=user.name, email=user.email, hashed_password=self.bcrypt(user.password)
+        )
+
+        AuthCRUD(self.db).add_user(user_model)
+
+    def authenticate(
+        self, login: OAuth2PasswordRequestForm = Depends()
+    ) -> TokenSchema | None:
+        """Generate token.
+
+        It obtains username and password and verifies password vs
+        hashed password stored in database. If valid then temporary
+        token is generated, otherwise the corresponding exception is raised.
+        """
+
+        user = AuthCRUD(self.db).get_user(login.username)
+
+        if user.hashed_password is None:
+            raise_with_log(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
+        else:
+            if not self.verify(user.hashed_password, login.password):
+                raise_with_log(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
+            else:
+                access_token = self._create_access_token(user.name, user.email)
+                return TokenSchema(access_token=access_token, token_type=TOKEN_TYPE)
+        return None
+
+    def _create_access_token(self, name: str, email: str) -> str:
+        """Encode user information and expiration time."""
+
+        payload = {
+            "name": name,
+            "sub": email,
+            "expires_at": self._expiration_time(),
+        }
+
+        return jwt.encode(payload, config.token_key, algorithm=TOKEN_ALGORITHM)
+
+    @staticmethod
+    def _expiration_time() -> str:
+        """Generate token expiration time."""
+
+        expires_at = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+        return expires_at.strftime("%Y-%m-%d %H:%M:%S")
+
+
+class AuthCRUD(AppCRUD):
+    def add_user(self, user: UserModel) -> None:
+        """Write user to database."""
+
+        self.add_one(user)
+
+    def get_user(self, email: str) -> UserSchema:
+        """Read user from database."""
+
+        model = self.get_one(select(UserModel).where(UserModel.email == email))
+
+        if not isinstance(model, UserModel):
+            raise_with_log(status.HTTP_404_NOT_FOUND, "User not found")
+
+        return UserSchema(
+            name=model.name,
+            email=model.email,
+            hashed_password=model.hashed_password,
+        )

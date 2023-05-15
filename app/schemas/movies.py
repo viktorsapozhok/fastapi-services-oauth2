@@ -6,6 +6,3 @@ class MovieSchema(BaseModel):
     title: str
     released: int
     rating: float
-
-    class Config:
-        orm_mode = True

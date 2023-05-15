@@ -4,12 +4,6 @@ from typing import (
     List,
 )
 
-# Prefix of environment variables specifying config parameters
-ENV_PREFIX: Final = "MYAPI_"
-
-ENV_PROD: str = "prod"
-ENV_STAGE: str = "stage"
-ENV_DEV: str = "dev"
 
 # Open API parameters
 OPEN_API_TITLE: Final = "API Hub"
@@ -29,4 +23,3 @@ TOKEN_ALGORITHM: Final = "HS256"
 MOVIES_TAGS: Final[List[str | Enum] | None] = ["Movies"]
 MOVIES_URL: Final = "movies"
 MOVIES_URL_NEW: Final = "new"
-MOVIES_URL_GENRE: Final = "genre"

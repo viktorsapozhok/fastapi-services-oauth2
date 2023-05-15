@@ -2,7 +2,7 @@
 
 This repository provides an approach on how to structure FastAPI application with 
 multiple services, simple OAuth2 Password authentication with Bearer and JWT tokens, 
-and Postgres backend.
+and Postgres backend database.
 
 [Read the tutorial][1] for more details.
 
@@ -16,29 +16,23 @@ Clone this repository and install using `pip`.
 $ pip install --editable .
 ```
 
-Verify installation using `myapi` command.
-
-```bash
-$ myapi --version
-Version: 0.0.0
-```
-
 ## How to run
 
-Set the relevant DSN string to your Postgres backend database in `.env` file. 
-By default, application uses `dev` environment, i.e. `MYAPI_DATABASE__DEV` DSN string
-will be used. You can change environment using `MYAPI_ENV` environment variable.
+Configure the relevant DSN string to your Postgres backend database in `.env` file, 
+or provide it from environment variable `MYAPI_DATABASE__DSN`.
 
-To run application in `dev` backend environment, you can simply use following.
+To run the application use following.
 
 ```bash
 $ uvicorn app.main:app
 ```
 
-To run in another environment (e.g. in `stage`), you can use following.
+or 
+
+```bash```
 
 ```bash
-$ MYAPI_ENV=stage uvicorn app.main:app
+$ MYAPI_DATABASE__DSN=postgresql://... uvicorn app.main:app
 ```
 
 ## License

@@ -1,9 +1,8 @@
 from typing import List
 
-from app.models.movies import (
-    GenreMovieModel,
-    MovieModel,
-)
+from sqlalchemy import select
+
+from app.models.movies import MovieModel
 from app.schemas.movies import MovieSchema
 from app.services.base import (
     AppCRUD,
@@ -17,35 +16,28 @@ class MovieService(AppService):
 
         return MovieCRUD(self.db).get_movie(movie_id)
 
-    def get_new_movies(self, year: int, rating: float) -> List[MovieSchema]:
-        """Get movies released since ``year`` and rated higher than ``rating``."""
+    def get_movies(self, year: int, rating: float) -> List[MovieSchema]:
+        """Select movies with filter by ``year`` and ``rating``."""
 
-        return MovieCRUD(self.db).get_new_movies(year, rating)
-
-    def get_genre_movies(self, genre: str) -> List[MovieSchema]:
-        """Get movies of specific genre."""
-
-        return MovieCRUD(self.db).get_genre_movies(genre)
+        return MovieCRUD(self.db).get_movies(year, rating)
 
 
 class MovieCRUD(AppCRUD):
     def get_movie(self, movie_id: int) -> MovieSchema:
-        """Select movie with ``movie_id``."""
+        stmt = select(MovieModel).where(MovieModel.movie_id == movie_id)
+        model = self.get_one(stmt)
 
-        return MovieSchema.from_orm(self.query(MovieModel, movie_id=movie_id).first())
+        return MovieSchema(**model.to_dict())
 
-    def get_new_movies(self, year: int, rating: float) -> List[MovieSchema]:
-        """Select movies released since ``year`` and rated higher than ``rating``."""
+    def get_movies(self, year: int, rating: float) -> List[MovieSchema]:
+        schemas: List[MovieSchema] = list()
 
-        query = self.query(
-            MovieModel, MovieModel.released >= year, MovieModel.rating >= rating
+        stmt = select(MovieModel).where(
+            MovieModel.released >= year,
+            MovieModel.rating >= rating,
         )
 
-        return [MovieSchema.from_orm(obj) for obj in query.all()]
+        for model in self.get_all(stmt):
+            schemas += [MovieSchema(**model.to_dict())]
 
-    def get_genre_movies(self, genre: str) -> List[MovieSchema]:
-        """Select movies of specific genre."""
-
-        query = self.query(GenreMovieModel, genre)
-
-        return [MovieSchema.from_orm(obj) for obj in query.all()]
+        return schemas

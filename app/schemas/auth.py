@@ -10,10 +10,7 @@ class CreateUserSchema(BaseModel):
 class UserSchema(BaseModel):
     name: str
     email: str
-    hashed_password: str | None
-
-    class Config:
-        orm_mode = True
+    hashed_password: str | None = None
 
 
 class TokenSchema(BaseModel):

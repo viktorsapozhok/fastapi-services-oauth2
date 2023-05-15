@@ -1,14 +1,17 @@
-from sqlalchemy import (
-    Column,
-    String,
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
 )
 
-from app.models.base import BaseModel
+from app.models.base import SQLModel
 
 
-class UserModel(BaseModel):
+class UserModel(SQLModel):
     __tablename__ = "users"
+    __table_args__ = {
+        "schema": "myapi",
+    }
 
-    email = Column(String, primary_key=True)
-    name = Column(String)
-    hashed_password = Column(String)
+    email: Mapped[str] = mapped_column("email", primary_key=True)
+    name: Mapped[str] = mapped_column("name")
+    hashed_password: Mapped[str] = mapped_column("hashed_password")

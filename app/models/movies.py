@@ -1,30 +1,18 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    Float,
-    String,
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
 )
 
-from app.models.base import (
-    BaseModel,
-    TableValuedMixin,
-)
+from app.models.base import SQLModel
 
 
-class MovieModel(BaseModel):
+class MovieModel(SQLModel):
     __tablename__ = "movies"
+    __table_args__ = {
+        "schema": "myapi",
+    }
 
-    movie_id = Column(Integer, primary_key=True)
-    title = Column(String)
-    released = Column(Integer)
-    rating = Column(Float)
-
-
-class GenreMovieModel(TableValuedMixin, BaseModel):
-    __tablename__ = "genre_movies"
-
-    movie_id = Column(Integer, primary_key=True)
-    genre = Column(String, primary_key=True)
-    title = Column(String)
-    released = Column(Integer)
-    rating = Column(Float)
+    movie_id: Mapped[int] = mapped_column("movie_id", primary_key=True)
+    title: Mapped[str] = mapped_column("title")
+    released: Mapped[int] = mapped_column("released")
+    rating: Mapped[float] = mapped_column("rating")

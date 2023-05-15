@@ -1,10 +1,6 @@
 from typing import Iterator
 
-from sqlalchemy import (
-    create_engine,
-    MetaData,
-)
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import (
     Session,
     sessionmaker,
@@ -15,11 +11,11 @@ from app.backend.config import config
 
 # create session factory to generate new database sessions
 SessionFactory = sessionmaker(
-    bind=create_engine(config.dsn), autocommit=False, autoflush=False
+    bind=create_engine(config.database.dsn),
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False,
 )
-
-# declarative base class used to construct mappings
-Base = declarative_base(metadata=MetaData(schema=config.database.target_schema))
 
 
 def create_session() -> Iterator[Session]:
@@ -33,5 +29,9 @@ def create_session() -> Iterator[Session]:
 
     try:
         yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
