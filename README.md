@@ -29,8 +29,6 @@ $ uvicorn app.main:app
 
 or 
 
-```bash```
-
 ```bash
 $ MYAPI_DATABASE__DSN=postgresql://... uvicorn app.main:app
 ```
