@@ -1,8 +1,9 @@
 # fastapi-services-oauth2
 
-This repository provides an approach on how to structure FastAPI application with 
-multiple services, simple OAuth2 Password authentication with Bearer and JWT tokens, 
-and Postgres backend database.
+This repository provides an approach on how to effectively structure a FastAPI application 
+simplifying the implementation of multiple service logic, integrate it with Postgres backend, 
+and implement straightforward OAuth2 Password authentication flow using Bearer and 
+JSON Web Tokens (JWT).
 
 [Read the tutorial][1] for more details.
 
@@ -19,7 +20,7 @@ $ pip install --editable .
 ## How to run
 
 Configure the relevant DSN string to your Postgres backend database in `.env` file, 
-or provide it from environment variable `MYAPI_DATABASE__DSN`.
+or provide it from the environment variable `MYAPI_DATABASE__DSN`.
 
 To run the application use following.
 
