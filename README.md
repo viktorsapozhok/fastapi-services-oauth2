@@ -1,13 +1,13 @@
 # fastapi-services-oauth2
 
 This repository provides an approach on how to effectively structure a FastAPI application 
-simplifying the implementation of multiple service logic, integrate it with Postgres backend, 
+with multiple services using 3-tier design pattern, integrate it with Postgres backend, 
 and implement straightforward OAuth2 Password authentication flow using Bearer and 
 JSON Web Tokens (JWT).
 
 [Read the tutorial][1] for more details.
 
-[1]: https://viktorsapozhok.github.io/fastapi-oauth2-postgres/ "Structuring FastAPI app with multiple services"
+[1]: https://viktorsapozhok.github.io/fastapi-oauth2-postgres/ "Structuring FastAPI application with multiple services using 3-tier design pattern"
 
 ## How to install
 
