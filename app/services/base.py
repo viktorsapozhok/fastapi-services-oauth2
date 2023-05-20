@@ -8,28 +8,28 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import Executable
 
 
-class DBSessionMixin:
+class SessionMixin:
     """Provides instance of database session."""
 
     def __init__(self, session: Session) -> None:
-        self.db = session
+        self.session = session
 
 
-class AppService(DBSessionMixin):
-    """Base class for app services."""
+class BaseService(SessionMixin):
+    """Base class for application services."""
 
 
-class AppCRUD(DBSessionMixin):
-    """Base class for CRUD operations over database objects."""
+class BaseDataManager(SessionMixin):
+    """Base data manager class responsible for operations over database."""
 
     def get_one(self, select_stmt: Executable) -> Any:
-        return self.db.scalar(select_stmt)
+        return self.session.scalar(select_stmt)
 
     def get_all(self, select_stmt: Executable) -> List[Any]:
-        return list(self.db.scalars(select_stmt).all())
+        return list(self.session.scalars(select_stmt).all())
 
     def add_one(self, model: Any) -> None:
-        self.db.add(model)
+        self.session.add(model)
 
     def add_all(self, models: Sequence[Any]) -> None:
-        self.db.add_all(models)
+        self.session.add_all(models)

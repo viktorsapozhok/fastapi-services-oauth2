@@ -5,24 +5,24 @@ from sqlalchemy import select
 from app.models.movies import MovieModel
 from app.schemas.movies import MovieSchema
 from app.services.base import (
-    AppCRUD,
-    AppService,
+    BaseDataManager,
+    BaseService,
 )
 
 
-class MovieService(AppService):
+class MovieService(BaseService):
     def get_movie(self, movie_id: int) -> MovieSchema:
         """Get movie by ID."""
 
-        return MovieCRUD(self.db).get_movie(movie_id)
+        return MovieDataManager(self.session).get_movie(movie_id)
 
     def get_movies(self, year: int, rating: float) -> List[MovieSchema]:
         """Select movies with filter by ``year`` and ``rating``."""
 
-        return MovieCRUD(self.db).get_movies(year, rating)
+        return MovieDataManager(self.session).get_movies(year, rating)
 
 
-class MovieCRUD(AppCRUD):
+class MovieDataManager(BaseDataManager):
     def get_movie(self, movie_id: int) -> MovieSchema:
         stmt = select(MovieModel).where(MovieModel.movie_id == movie_id)
         model = self.get_one(stmt)

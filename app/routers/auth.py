@@ -5,7 +5,7 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.backend.database import create_session
+from app.backend.session import create_session
 from app.const import (
     AUTH_TAGS,
     AUTH_URL,

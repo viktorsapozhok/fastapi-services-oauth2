@@ -8,9 +8,7 @@ from app.models.base import SQLModel
 
 class UserModel(SQLModel):
     __tablename__ = "users"
-    __table_args__ = {
-        "schema": "myapi",
-    }
+    __table_args__ = {"schema": "myapi"}
 
     email: Mapped[str] = mapped_column("email", primary_key=True)
     name: Mapped[str] = mapped_column("name")

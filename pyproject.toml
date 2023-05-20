@@ -36,6 +36,11 @@ check = [
     "isort",
     "mypy",
 ]
+test = [
+    "httpx>=0.24.0",
+    "pytest",
+    "pytest-cov",
+]
 
 [project.urls]
 homepage = "https://viktorsapozhok.github.io/fastapi-oauth2-postgres/"
@@ -75,3 +80,9 @@ warn_unused_ignores = "True"
 check_untyped_defs = "True"
 install_types = "True"
 non_interactive = "True"
+
+[tool.pytest.ini_options]
+addopts = "--color=yes --cov=app --cov-report=term-missing -vv -s"
+testpaths = [
+    "tests",
+]

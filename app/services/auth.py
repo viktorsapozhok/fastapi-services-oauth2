@@ -33,8 +33,8 @@ from app.schemas.auth import (
     UserSchema,
 )
 from app.services.base import (
-    AppCRUD,
-    AppService,
+    BaseDataManager,
+    BaseService,
 )
 
 
@@ -46,9 +46,9 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl=AUTH_URL, auto_error=False)
 async def get_current_user(token: str = Depends(oauth2_schema)) -> UserSchema | None:
     """Decode token to obtain user information.
 
-    It extracts user information from token and verifies expiration time.
-    If token is valid instance :class:`~app.schemas.auth.UserSchema` is returned,
-    otherwise the corresponding exception is raised.
+    Extracts user information from token and verifies expiration time.
+    If token is valid then instance of :class:`~app.schemas.auth.UserSchema`
+    is returned, otherwise exception is raised.
 
     Args:
         token:
@@ -94,58 +94,42 @@ class HashingMixin:
 
     @staticmethod
     def bcrypt(password: str) -> str:
-        """Generate a bcrypt hashed password.
-
-        Args:
-            password:
-                The password to hash.
-
-        Returns:
-            The hashed password
-        """
+        """Generate a bcrypt hashed password."""
 
         return pwd_context.hash(password)
 
     @staticmethod
     def verify(hashed_password: str, plain_password: str) -> bool:
-        """Verify a password against a hash.
-
-        Args:
-            hashed_password:
-                The hashed password.
-            plain_password:
-                The plain password.
-
-        Returns:
-            True if the password matches, False otherwise.
-        """
+        """Verify a password against a hash."""
 
         return pwd_context.verify(plain_password, hashed_password)
 
 
-class AuthService(HashingMixin, AppService):
+class AuthService(HashingMixin, BaseService):
     """Authentication service."""
 
     def create_user(self, user: CreateUserSchema) -> None:
         """Add user with hashed password to database."""
 
         user_model = UserModel(
-            name=user.name, email=user.email, hashed_password=self.bcrypt(user.password)
+            name=user.name,
+            email=user.email,
+            hashed_password=self.bcrypt(user.password),
         )
 
-        AuthCRUD(self.db).add_user(user_model)
+        AuthDataManager(self.session).add_user(user_model)
 
     def authenticate(
         self, login: OAuth2PasswordRequestForm = Depends()
     ) -> TokenSchema | None:
         """Generate token.
 
-        It obtains username and password and verifies password vs
+        Obtains username and password and verifies password against
         hashed password stored in database. If valid then temporary
         token is generated, otherwise the corresponding exception is raised.
         """
 
-        user = AuthCRUD(self.db).get_user(login.username)
+        user = AuthDataManager(self.session).get_user(login.username)
 
         if user.hashed_password is None:
             raise_with_log(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
@@ -170,13 +154,13 @@ class AuthService(HashingMixin, AppService):
 
     @staticmethod
     def _expiration_time() -> str:
-        """Generate token expiration time."""
+        """Get token expiration time."""
 
         expires_at = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
         return expires_at.strftime("%Y-%m-%d %H:%M:%S")
 
 
-class AuthCRUD(AppCRUD):
+class AuthDataManager(BaseDataManager):
     def add_user(self, user: UserModel) -> None:
         """Write user to database."""
 

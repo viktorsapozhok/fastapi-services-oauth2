@@ -1,6 +1,6 @@
 import click
 
-from app.backend.database import create_session
+from app.backend.session import create_session
 from app.schemas.auth import CreateUserSchema
 from app.services.auth import AuthService
 from app.version import __version__
@@ -26,7 +26,7 @@ def create_user(name: str, email: str, password: str) -> None:
 
     \b
     Examples:
-        myapi --name 'test user' --email test_user@myapi.com --password qwerty123
+        myapi --name 'test user' --email test_user@myapi.com --password qwerty
     """
 
     # initialize user schema
