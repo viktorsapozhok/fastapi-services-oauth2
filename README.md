@@ -7,7 +7,7 @@ JSON Web Tokens (JWT).
 
 [Read the tutorial][1] for more details.
 
-[1]: https://viktorsapozhok.github.io/fastapi-oauth2-postgres/ "Structuring FastAPI application with multiple services using 3-tier design pattern"
+[1]: https://medium.com/@vanilla-ninja/structuring-fastapi-services-using-3-tier-design-pattern-cf7622c2fd8a "Structuring FastAPI Application Using 3-Tier Design Pattern"
 
 ## How to install
 
