@@ -5,7 +5,10 @@ from typing import (
     Type,
 )
 
-from sqlalchemy import func, select
+from sqlalchemy import (
+    func,
+    select,
+)
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import Executable
 
