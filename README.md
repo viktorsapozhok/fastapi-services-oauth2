@@ -7,7 +7,7 @@ JSON Web Tokens (JWT).
 
 [Read the tutorial][1] for more details.
 
-[1]: https://vanilla-ninja.medium.com/structuring-fastapi-project-using-3-tier-design-pattern-4d2e88a55757 "Structuring FastAPI Application Using 3-Tier Design Pattern"
+[1]: https://medium.com/gitconnected/structuring-fastapi-project-using-3-tier-design-pattern-4d2e88a55757 "Structuring FastAPI Application Using 3-Tier Design Pattern"
 
 ## How to install
 
