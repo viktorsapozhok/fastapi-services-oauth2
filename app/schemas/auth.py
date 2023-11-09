@@ -1,18 +1,18 @@
-from pydantic import BaseModel
+from app.schemas.base import BaseSchema
 
 
-class CreateUserSchema(BaseModel):
+class CreateUserSchema(BaseSchema):
     name: str
     email: str
     password: str
 
 
-class UserSchema(BaseModel):
+class UserSchema(BaseSchema):
     name: str
     email: str
     hashed_password: str | None = None
 
 
-class TokenSchema(BaseModel):
+class TokenSchema(BaseSchema):
     access_token: str
     token_type: str

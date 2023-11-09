@@ -1,6 +1,6 @@
 import click
 
-from app.backend.session import create_session
+from app.backend.session import open_session
 from app.schemas.auth import CreateUserSchema
 from app.services.auth import AuthService
 from app.version import __version__
@@ -32,8 +32,6 @@ def create_user(name: str, email: str, password: str) -> None:
     # initialize user schema
     user = CreateUserSchema(name=name, email=email, password=password)
 
-    # generate new database session
-    session = next(create_session())
-
     # write to database
-    AuthService(session).create_user(user)
+    with open_session() as session:
+        AuthService(session).create_user(user)

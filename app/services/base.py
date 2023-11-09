@@ -58,10 +58,14 @@ class BaseDataManager(SessionMixin):
                 y: Mapped[str] = mapped_column("y")
                 z: Mapped[float] = mapped_column("z")
 
-            # equivalent to "SELECT x, y, z FROM schema.function(1, "AAA")"
+            # equivalent to "SELECT x, y, z FROM schema.function(1, 'AAA')"
             BaseDataManager(session).get_from_tvf(MyModel, 1, "AAA")
         """
 
+        return self.get_all(self.select_from_tvf(model, *args))
+
+    @staticmethod
+    def select_from_tvf(model: Type[SQLModel], *args: Any) -> Executable:
         fn = getattr(getattr(func, model.schema()), model.table_name())
         stmt = select(fn(*args).table_valued(*model.fields()))
-        return self.get_all(select(model).from_statement(stmt))
+        return select(model).from_statement(stmt)

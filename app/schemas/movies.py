@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from app.schemas.base import BaseSchema
 
 
-class MovieSchema(BaseModel):
+class MovieSchema(BaseSchema):
     movie_id: int
     title: str
     released: int

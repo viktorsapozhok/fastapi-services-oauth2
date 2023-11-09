@@ -1,5 +1,8 @@
 from fastapi.testclient import TestClient
-from pydantic import BaseSettings
+from pydantic_settings import (
+    BaseSettings,
+    SettingsConfigDict,
+)
 import pytest
 
 from app.const import AUTH_URL
@@ -13,10 +16,11 @@ class TestConfig(BaseSettings):
     username: str = ""
     password: str = ""
 
-    class Config:
-        env_prefix = "MYAPI_TEST_"
-        env_nested_delimiter = "__"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_prefix="MYAPI_TEST_",
+        env_nested_delimiter="__",
+        case_sensitive=False,
+    )
 
 
 _config = TestConfig()
